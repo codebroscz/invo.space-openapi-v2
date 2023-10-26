@@ -191,7 +191,7 @@ components:
           example: 1250
         currency:
           type: string
-          description: ISO currency format
+          description: ISO currency format. So far only CZK is supported.
           example: EUR
 
     Participant:
