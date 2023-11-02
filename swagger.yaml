@@ -1,6 +1,19 @@
 openapi: "3.0.3"
 info:
-  description: "Official documentation for the invo.space API."
+  description: |
+    # Official documentation for the invo.space API.
+    
+    ## Glossary
+    
+    * Internal ID: identificator in invo.space
+    * External ID: identificator in your or other system
+    * Document: Expense, Invoice or Order.
+    
+    ## Common formats
+    * UUID version 4
+    * date-time is in ISO 
+    * errors follow https://datatracker.ietf.org/doc/html/rfc7807
+
   version: "0.1.0"
   title: "invo.space"
   contact:
@@ -16,12 +29,29 @@ paths:
     get:
       tags:
         - invoices
-      summary: "List invoices"
-      description: "Returns a list of invoices."
+      summary: "List Invoices"
+      description: "Returns a list of Invoices."
       operationId: "getInvoices"
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+            description: Year in four digit format YYYY
+            example: 2023
+          required: true
+        - in: query
+          name: month
+          schema:
+            type: integer
+            description: Month in non-zerofilled format
+            example:
+              - 3
+              - 12
+            nullable: true
       responses:
         200:
-          description: "A list of invoices."
+          description: "A list of Invoices."
           content:
             application/json:
               schema:
@@ -29,8 +59,160 @@ paths:
                 items:
                   $ref: "#/components/schemas/Invoice"
 
+    post:
+      tags:
+        - invoices
+      summary: "Create new invoice"
+#      description:
+      operationId: "createInvoice"
+      requestBody:
+        $ref: '#/components/requestBodies/CreateInvoice'
+      responses:
+        200:
+          description: Invoice was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDocumentResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /invoices/{id}:
+    get:
+      tags:
+        - invoices
+      summary: Get single Invoice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Identification of the Invoice. As of now it is symbol of the Invoice.
+      responses:
+        200:
+          description:
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Invoice'
+                  - type: object
+                    properties:
+                      permalink:
+                        type: string
+                        format: url
+                        description: Permanent link leading to PDF version of the Invoice.
+                        example: /permalink/invoice/9961d718-cae7-48e9-845d-e5c21f4ecdb3
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /orders:
+    #    $ref: "./paths/orders.yaml"
+    get:
+      tags:
+        - orders
+      summary: "List orders"
+      description: "Returns a list of orders."
+      operationId: "getOrders"
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+            description: Year in four digit format YYYY
+            example: 2023
+          required: true
+        - in: query
+          name: month
+          schema:
+            type: integer
+            description: Month in non-zerofilled format
+            example:
+              - 3
+              - 12
+            nullable: true
+      responses:
+        200:
+          description: "A list of orders."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+    post:
+      tags:
+        - orders
+      summary: "Create new order"
+      operationId: "createOrder"
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOrder'
+      responses:
+        200:
+          description: Order was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDocumentResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /orders/{id}:
+    get:
+      tags:
+        - orders
+      summary: Get single Order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Identification of the Order. As of now it is symbol of the Order.
+      responses:
+        200:
+          description:
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Order'
+                  - type: object
+                    properties:
+                      permalink:
+                        type: string
+                        format: url
+                        description: Permanent link leading to PDF version of the Order.
+                        example: /permalink/order/9961d718-cae7-48e9-845d-e5c21f4ecdb3
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Unique identification of the error.
+        status:
+          type: integer
+          description: HTTP status code for convenience.
+        code:
+          type: integer
+          description: Numeric code uniquely identifying the error. Note that codes are NOT unique across endpoints.
+          example:
+            - 40001
+        title:
+          type: string
+          description: Message uniquely identifying the error.
+        detail:
+          type: string
+          description: Request specific description of the error.
+
     Address:
       type: object
       properties:
@@ -50,18 +232,15 @@ components:
           example: Česká Republika
 
     Document:
-      required:
-        - name
-        - photoUrls
       type: object
       properties:
         symbol:
-          type: integer
-          format: int64
-          example: 20230012
+          type: string
+          example: '20230012'
         uuid:
           type: string
-          format: uuid4
+          format: uuid
+          example: '9961d718-cae7-48e9-845d-e5c21f4ecdb3'
         issuedAt:
           type: string
           format: date-time
@@ -73,7 +252,8 @@ components:
         paidAt:
           type: string
           format: date-time
-          description: Date of payment that appear on the document
+          nullable: true
+          description: Date of payment that appears on the document
         description:
           type: string
           nullable: true
@@ -104,9 +284,9 @@ components:
         supplier:
           $ref: '#/components/schemas/Participant'
         beneficiary:
+          nullable: true
           anyOf:
             - $ref: '#/components/schemas/Participant'
-            - type: 'null'
         items:
           type: array
           items:
@@ -182,6 +362,10 @@ components:
               nullable: true
               description: Reference to Order ID.
 
+    Order:
+      allOf:
+        - $ref: '#/components/schemas/Document'
+
     Money:
       type: object
       properties:
@@ -231,3 +415,154 @@ components:
           nullable: true
         address:
           $ref: '#/components/schemas/Address'
+
+    CreateDocumentRequest:
+      type: object
+      required:
+        - customer
+        - deadlineAt
+        - items
+      properties:
+        symbol:
+          description: Actually a custom symbol (identification) of the Document from your system
+          type: string
+          nullable: true
+        customer:
+          anyOf:
+            - type: number
+              description: Internal ID of Customer
+            - $ref: '#/components/schemas/Participant'
+        beneficiary:
+          nullable: true
+          description: Beneficiary feature must be enabled for the account.
+          anyOf:
+            - type: number
+              description: Internal ID of customer
+            - $ref: '#/components/schemas/Participant'
+        issuedAt:
+          nullable: true
+          type: string
+          format: date-time
+          description: |
+            Date of issuance that appears on the document. 
+            May be provided in relative format, e.g. '+1 day'.
+            Current date if not provided.
+        paidAt:
+          nullable: true
+          type: string
+          format: date-time
+          description: |
+            Date of payment that appears on the document. 
+            May be provided in relative format, e.g. '+1 day'.  
+            Invoice will not be marked as paid if not provided or null.
+        taxableAt:
+          nullable: true
+          type: string
+          format: date-time
+          description: |
+            Date of VAT applicability. 
+            May be provided in relative format, e.g. '+1 day'.  
+            Required for invoices created by VAT payers. Not allowed for non-VAT payers.
+        deadlineAt:
+          type: string
+          format: date-time
+          description: |
+            Date until when one wants the payment to be made. 
+            May be provided in relative format, e.g. '+15 days'.
+        description:
+          type: string
+          description: Line of text that appears above the list of document items.
+        vs:
+          type: string
+          description: Variable symbol
+        ss:
+          type: string
+          description: Specific symbol
+        ks:
+          type: string
+          description: Constant symbol
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentItem'
+          minItems: 1
+
+    CreateDocumentResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Always 'ok'
+        id:
+          type: string
+          description: Internal ID of the created Document. Currently it is sequence number of the Document.
+          example: 20230001
+        symbol:
+          type: string
+          description: Sequence number of the created Document.
+          example: 20230001
+        uuid:
+          type: string
+          format: uuid
+          description: UUID of the created Document.
+          example: 9961d718-cae7-48e9-845d-e5c21f4ecdb3
+        permalink:
+          type: string
+          format: url
+          description: Permanent link leading to PDF version of the Document.
+
+  requestBodies:
+    CreateInvoice:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateDocumentRequest'
+
+    CreateOrder:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - document
+            properties:
+              document:
+                $ref: '#/components/schemas/CreateDocumentRequest'
+              email:
+                type: object
+                required:
+                  - recipient
+                  - replyTo
+                  - subject
+                  - messageText
+                properties:
+                  recipient:
+                    type: string
+                    format: email
+                  replyTo:
+                    type: string
+                    format: email
+                  cc:
+                    type: array
+                    items:
+                      type: string
+                      format: email
+                  subject:
+                    type: string
+                    example: Thank you for your order
+                  messageText:
+                    type: string
+                    example: |
+                      Hello,
+                      
+                      thank you for your order. Please see the attached order with payment information.
+
+  responses:
+    ErrorResponse:
+      description:
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
