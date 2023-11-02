@@ -91,7 +91,7 @@ paths:
             description: Identification of the Invoice. As of now it is symbol of the Invoice.
       responses:
         200:
-          description:
+          description: Invoice with requested ID was found
           content:
             application/json:
               schema:
@@ -173,7 +173,7 @@ paths:
             description: Identification of the Order. As of now it is symbol of the Order.
       responses:
         200:
-          description:
+          description: Order with requested ID was found
           content:
             application/json:
               schema:
