@@ -561,7 +561,7 @@ components:
 
   responses:
     ErrorResponse:
-      description:
+      description: General error response for all endpoints
       content:
         application/problem+json:
           schema:
