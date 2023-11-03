@@ -14,7 +14,7 @@ info:
     * date-time is in ISO 
     * errors follow https://datatracker.ietf.org/doc/html/rfc7807
 
-  version: "0.1.0"
+  version: "1.0.0"
   title: "invo.space"
   contact:
     email: "bros@codebros.cz"
