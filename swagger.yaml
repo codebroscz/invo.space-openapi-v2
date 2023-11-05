@@ -24,6 +24,89 @@ servers:
     description: "Production server"
 
 paths:
+  /expense:
+    #    $ref: "./paths/expenses.yaml"
+    get:
+      tags:
+        - expenses
+      summary: "List Expenses"
+      description: "Returns a list of Expenses for a given year and optionally for a given month."
+      operationId: "getExpenses"
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: integer
+            description: Year in four digit format YYYY
+            example: 2023
+          required: true
+        - in: query
+          name: month
+          schema:
+            type: integer
+            description: Month in non-zerofilled format
+            example:
+              - 3
+              - 12
+            nullable: true
+      responses:
+        200:
+          description: "A list of Expenses."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+
+    post:
+      tags:
+        - expenses
+      summary: "Create new Expense"
+      #      description:
+      operationId: "createExpense"
+      requestBody:
+        $ref: '#/components/requestBodies/CreateExpense'
+      responses:
+        200:
+          description: Expense was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDocumentResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /expense/{id}:
+    get:
+      tags:
+        - expenses
+      summary: Get single Expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Identification of the Expense. As of now it is symbol of the Expense.
+      responses:
+        200:
+          description: Expense with requested ID was found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Expense'
+                  - type: object
+                    properties:
+                      permalink:
+                        type: string
+                        format: url
+                        description: Permanent link leading to PDF version of the Expense.
+                        example: /permalink/expense/9961d718-cae7-48e9-845d-e5c21f4ecdb3
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /invoices:
 #    $ref: "./paths/invoices.yaml"
     get:
@@ -347,6 +430,40 @@ components:
           description: Total price of the whole item
           allOf:
             - $ref: "#/components/schemas/Money"
+
+    Expense:
+      allOf:
+        - $ref: '#/components/schemas/Document'
+        - type: object
+          required:
+            - expenseType
+            - receivedAt
+          properties:
+            expenseType:
+              type: string
+              enum:
+                - invoice
+                - receipt
+                - other
+            receivedAt:
+              type: string
+              format: date-time
+              description: Date the receipt/invoice was received
+            taxableAt:
+              type: string
+              format: date-time
+              description: Date of VAT applicability (DUZP in CZE)
+            attachment:
+              type: string
+              format: binary
+              description: File attachment of the expense, e.g. PDF invoice, photo of receipt, etc.
+            vatDeductible:
+              type: boolean
+              description: Whether the VAT is deductible or not. Only for VAT payers.
+            vatDeductionProportionPercent:
+              type: number
+              format: decimal
+              description: Proportion of VAT deduction in percent. Only for VAT payers.
 
     Invoice:
       allOf:
