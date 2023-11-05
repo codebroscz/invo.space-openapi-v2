@@ -24,6 +24,74 @@ servers:
     description: "Production server"
 
 paths:
+  /contact:
+    #    $ref: "./paths/contacts.yaml"
+    get:
+      tags:
+        - contacts
+      summary: "List Contacts"
+      responses:
+        200:
+          description: "A list of Contacts."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Participant"
+
+    post:
+      tags:
+          - contacts
+      summary: "Create new Contact"
+      operationId: "createContact"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Participant'
+      responses:
+        200:
+          description: Contact was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Participant'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /contacts/{id}:
+    get:
+      tags:
+        - contacts
+      summary: Get single Contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Identification of the Contact. As of now it is symbol of the Contact.
+      responses:
+        200:
+          description: Contact with requested ID was found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Always 'ok'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Internal ID of the Contact.
+                        example: 37
+
   /expense:
     #    $ref: "./paths/expenses.yaml"
     get:
