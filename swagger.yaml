@@ -812,5 +812,38 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+webhooks:
+  invoicePaid:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum:
+                    - invoicePaid
+                payload:
+                  type: object
+                  required:
+                    - symbol
+                    - dateOfPayment
+                  properties:
+                    symbol:
+                      type: string
+                      description: Symbol of the paid Invoice
+                    orderSymbol:
+                      type: string
+                      nullable: true
+                      description: Symbol of the associated Order
+                    customSymbol:
+                      type: string
+                      nullable: true
+                    dateOfPayment:
+                      type: string
+                      format: date-time
+
 security:
   - bearerAuth: []
