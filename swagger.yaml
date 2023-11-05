@@ -504,12 +504,68 @@ components:
           description: Permanent link leading to PDF version of the Document.
 
   requestBodies:
+    CreateExpense:
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CreateDocumentRequest'
+              - type: object
+                required:
+                  - expenseType
+                  - receivedAt
+                properties:
+                    expenseType:
+                        type: string
+                        enum:
+                        - invoice
+                        - receipt
+                        - other
+                    receivedAt:
+                      type: string
+                      format: date-time
+                      description: Date the receipt/invoice was received
+                    taxableAt:
+                      nullable: true
+                      type: string
+                      format: date-time
+                      description: |
+                        Date of VAT applicability.
+                        Required for invoices created by VAT payers. Not allowed for non-VAT payers.
+                    attachment:
+                        type: string
+                        format: binary
+                        description: File attachment of the expense, e.g. PDF invoice, photo of receipt, etc.
+                    vatDeductible:
+                        type: boolean
+                        description: Whether the VAT is deductible or not. Only for VAT payers.
+                    vatDeductionProportionPercent:
+                        type: number
+                        format: decimal
+                        description: Proportion of VAT deduction in percent. Only for VAT payers.
+
     CreateInvoice:
       required: true
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/CreateDocumentRequest'
+            allOf:
+              - $ref: '#/components/schemas/CreateDocumentRequest'
+              - type: object
+                properties:
+                  order:
+                    type: string
+                    nullable: true
+                    description: Reference to Internal Order ID.
+                  taxableAt:
+                    nullable: true
+                    type: string
+                    format: date-time
+                    description: |
+                      Date of VAT applicability.
+                      May be provided in relative format, e.g. '+1 day'.
+                      Required for invoices created by VAT payers. Not allowed for non-VAT payers.
 
     CreateOrder:
       required: true
