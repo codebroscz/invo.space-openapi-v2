@@ -844,6 +844,9 @@ webhooks:
                     dateOfPayment:
                       type: string
                       format: date-time
+      responses:
+        200:
+          description: Indicate that the data was received successfully
 
 security:
   - bearerAuth: []
