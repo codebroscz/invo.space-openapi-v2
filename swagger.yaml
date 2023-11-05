@@ -30,7 +30,7 @@ paths:
       tags:
         - invoices
       summary: "List Invoices"
-      description: "Returns a list of Invoices."
+      description: "Returns a list of Invoices for a given year and optionally for a given month."
       operationId: "getInvoices"
       parameters:
         - in: query
@@ -62,7 +62,7 @@ paths:
     post:
       tags:
         - invoices
-      summary: "Create new invoice"
+      summary: "Create new Invoice"
 #      description:
       operationId: "createInvoice"
       requestBody:
@@ -112,8 +112,8 @@ paths:
     get:
       tags:
         - orders
-      summary: "List orders"
-      description: "Returns a list of orders."
+      summary: "List Orders"
+      description: "Returns a list of Orders for a given year and optionally for a given month."
       operationId: "getOrders"
       parameters:
         - in: query
@@ -134,7 +134,7 @@ paths:
             nullable: true
       responses:
         200:
-          description: "A list of orders."
+          description: "A list of Orders."
           content:
             application/json:
               schema:
@@ -145,7 +145,7 @@ paths:
     post:
       tags:
         - orders
-      summary: "Create new order"
+      summary: "Create new Order"
       operationId: "createOrder"
       requestBody:
         $ref: '#/components/requestBodies/CreateOrder'
