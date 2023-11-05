@@ -61,7 +61,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /contacts/{id}:
+  /contact/{id}:
     get:
       tags:
         - contacts
@@ -175,7 +175,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /invoices:
+  /invoice:
 #    $ref: "./paths/invoices.yaml"
     get:
       tags:
@@ -228,7 +228,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /invoices/{id}:
+  /invoice/{id}:
     get:
       tags:
         - invoices
@@ -258,7 +258,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /orders:
+  /order:
     #    $ref: "./paths/orders.yaml"
     get:
       tags:
@@ -310,7 +310,7 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
-  /orders/{id}:
+  /order/{id}:
     get:
       tags:
         - orders
