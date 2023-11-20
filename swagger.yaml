@@ -556,8 +556,11 @@ components:
       properties:
         amount:
           type: string
-          description: Amount of currency in cents, e.g. 1000 means 10.00 EUR
-          example: 1250
+          description: Amount of currency in decimal numeric string with up to 5 decimal places and a dot as decimal separator.
+          example:
+            - 12.5
+            - 3.14159
+            - 1499.0
         currency:
           type: string
           description: ISO currency format. So far only CZK is supported.
